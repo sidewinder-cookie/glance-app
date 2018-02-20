@@ -39,7 +39,9 @@
         <service
             android:name=".LocationWatcher"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".NoteViewer"></activity>
     </application>
 
 </manifest>

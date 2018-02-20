@@ -118,8 +118,10 @@ public class LocationWatcher extends Service {
     public void sendNotification(LocationTrigger trigger, String location) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getApplicationContext(), "glance_channel");
-        Intent ii = new Intent(getApplicationContext(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, 0);
+        Intent ii = new Intent(getApplicationContext(), NoteViewer.class);
+        ii.putExtra("name", trigger.getName());
+        ii.putExtra("details", trigger.getDetails());
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
         bigText.bigText("View your \"" + trigger.getName() + "\" note");
