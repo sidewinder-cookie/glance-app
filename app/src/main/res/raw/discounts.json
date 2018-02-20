@@ -1,0 +1,14 @@
+{
+  "discounts": [
+    {
+      "name": "McDonalds",
+      "discount": "Enjoy a free Cheeseburger, Mayo Chicken or McFlurry Original® when you order an Extra Value or Wrap Meal at McDonald's.",
+      "link": "https://www.myunidays.com/GB/en-GB/partners/mcdonalds/view/in-store"
+    },
+    {
+      "name": "SuperDrug",
+      "discount": "10% off",
+      "link": "https://www.myunidays.com/GB/en-GB/partners/superdrug/view/in-store"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ public class NoteMaker extends AppCompatActivity {
 
     int PLACE_PICKER_REQUEST = 1;
     FloatingActionButton fab;
-    InformalLocation location;
+    InformalLocation location = new InformalLocation("$$supermarket");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,6 @@ public class NoteMaker extends AppCompatActivity {
                 finish();
             }
         });
-        fab.setVisibility(View.GONE);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

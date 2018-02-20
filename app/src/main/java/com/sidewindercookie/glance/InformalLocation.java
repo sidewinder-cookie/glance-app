@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class InformalLocation implements Parcelable {
     private String name;
-    private LatLng latLng;
+    private LatLng latLng = new LatLng(-1, -1);
 
     public String getName() {
         return name;

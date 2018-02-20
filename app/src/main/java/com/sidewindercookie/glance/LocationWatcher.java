@@ -12,9 +12,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -31,12 +31,22 @@ public class LocationWatcher extends Service {
     private static final String TAG = "GLANCELOCATIONLISTENER";
     private LocationManager locationManager;
     private static final int INTERVAL = 5000; // informalLocation polling interval
-    private static final float PROXIMITY = 10000000f; // proximity
+    private static final float PROXIMITY = 50000f; // proximity
     int counter = 001;
 
+    private DiscountOffer[] discountsRaw = new DiscountOffer[] {
+            new DiscountOffer("McDonalds","Enjoy a free Cheeseburger, Mayo Chicken or McFlurry Original® when you order an Extra Value or Wrap Meal at McDonald's.", "https://www.myunidays.com/GB/en-GB/partners/mcdonalds/view/in-store"),
+            new DiscountOffer("SuperDrug", "10% off", "https://www.myunidays.com/GB/en-GB/partners/superdrug/view/in-store"),
+    };
+
+    private List<LocationTrigger> discounts = new ArrayList<LocationTrigger>();
     private List<LocationTrigger> triggers = new ArrayList<LocationTrigger>();
 
+    private GoogleNearbyAPI nearbyAPI;
+
     Location lastLocation;
+
+    GoogleNearbyAPI queue;
 
     private class LocationListener implements android.location.LocationListener {
 
@@ -73,9 +83,24 @@ public class LocationWatcher extends Service {
             new LocationListener(LocationManager.NETWORK_PROVIDER)
     };
 
+    public void checkVagueTriggers(Location location) {
+        ensureNearbyAPI();
+        if (location != null) {
+            for (LocationTrigger trigger : triggers) {
+                if (!trigger.getInformalLocation().getName().startsWith("$$")) {
+                    continue;
+                }
+                nearbyAPI.findNearby((int) PROXIMITY, location, trigger);
+            }
+        }
+    }
+
     public void checkTriggers(Location location) {
         if (location != null) {
             for (LocationTrigger trigger : triggers) {
+                if (trigger.getInformalLocation().getName().startsWith("$$")) {
+                    continue;
+                }
                 float distance = location.distanceTo(trigger.getInformalLocation().getLocation());
                 Log.d(TAG, "distance to " + trigger.getName() + " is " + distance);
                 if (distance < PROXIMITY) {
@@ -83,9 +108,14 @@ public class LocationWatcher extends Service {
                 }
             }
         }
+        checkVagueTriggers(location);
     }
 
-    private void sendNotification(LocationTrigger trigger) {
+    public void sendNotification(LocationTrigger trigger) {
+        sendNotification(trigger, trigger.getInformalLocation().getName());
+    }
+
+    public void sendNotification(LocationTrigger trigger, String location) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getApplicationContext(), "glance_channel");
         Intent ii = new Intent(getApplicationContext(), MainActivity.class);
@@ -93,7 +123,7 @@ public class LocationWatcher extends Service {
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
         bigText.bigText("View your \"" + trigger.getName() + "\" note");
-        bigText.setBigContentTitle("Near " + trigger.getInformalLocation().getName() + "?");
+        bigText.setBigContentTitle("Near " + location + "?");
         bigText.setSummaryText("View your \"" + trigger.getName() + "\" note");
 
         mBuilder.setContentIntent(pendingIntent);
@@ -117,6 +147,11 @@ public class LocationWatcher extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        discounts.clear();
+        for (DiscountOffer offer : discountsRaw) {
+            discounts.add(new LocationTrigger(offer.getName(), offer.getOffer(), offer.getUrl()));
+        }
+        ensureNearbyAPI();
         return null;
     }
 
@@ -130,6 +165,12 @@ public class LocationWatcher extends Service {
         }
         checkTriggers(lastLocation);
         return START_STICKY;
+    }
+
+    private void ensureNearbyAPI() {
+        if (nearbyAPI == null) {
+            nearbyAPI = new GoogleNearbyAPI(this);
+        }
     }
 
     private void ensureLocationManager() {
