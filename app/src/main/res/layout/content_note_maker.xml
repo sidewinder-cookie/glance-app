@@ -38,24 +38,45 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="New Note" />
+                android:hint="Name"
+                android:inputType="textPersonName" />
 
         </LinearLayout>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Location"
-            android:onClick="openLocationPicker"
-            />
 
         <EditText
             android:id="@+id/noteDetailsEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:ems="10"
+            android:hint="Details"
             android:inputType="textMultiLine" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Select a location:" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="openLocationPicker"
+            android:text="Select a Precise Location" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="OR choose a type of location:" />
+
+        <Spinner
+            android:id="@+id/genericType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="185dp" />
+
     </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>

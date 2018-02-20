@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,8 +29,9 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 public class NoteMaker extends AppCompatActivity {
 
     int PLACE_PICKER_REQUEST = 1;
+    Spinner genericTypes;
     FloatingActionButton fab;
-    InformalLocation location = new InformalLocation("$$supermarket");
+    InformalLocation location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,9 @@ public class NoteMaker extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (location == null) {
+                    location = new InformalLocation("$$"+genericTypes.getSelectedItem().toString());
+                }
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("name", ((EditText) findViewById(R.id.noteNameEdit)).getText().toString());
                 resultIntent.putExtra("details", ((EditText) findViewById(R.id.noteDetailsEdit)).getText().toString());
@@ -49,6 +55,12 @@ public class NoteMaker extends AppCompatActivity {
                 finish();
             }
         });
+
+        genericTypes = (Spinner) findViewById(R.id.genericType);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.google_nearby_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        genericTypes.setAdapter(adapter);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
