@@ -1,14 +1,20 @@
 package com.sidewindercookie.glance;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -25,7 +31,8 @@ public class LocationWatcher extends Service {
     private static final String TAG = "GLANCELOCATIONLISTENER";
     private LocationManager locationManager;
     private static final int INTERVAL = 5000; // informalLocation polling interval
-    private static final float PROXIMITY = 10f; // proximity
+    private static final float PROXIMITY = 10000000f; // proximity
+    int counter = 001;
 
     private List<LocationTrigger> triggers = new ArrayList<LocationTrigger>();
 
@@ -70,9 +77,42 @@ public class LocationWatcher extends Service {
         if (location != null) {
             for (LocationTrigger trigger : triggers) {
                 float distance = location.distanceTo(trigger.getInformalLocation().getLocation());
-                Log.d(TAG, "distance to thing is " + distance);
+                Log.d(TAG, "distance to " + trigger.getName() + " is " + distance);
+                if (distance < PROXIMITY) {
+                    sendNotification(trigger);
+                }
             }
         }
+    }
+
+    private void sendNotification(LocationTrigger trigger) {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this.getApplicationContext(), "glance_channel");
+        Intent ii = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, 0);
+
+        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText("View your \"" + trigger.getName() + "\" note");
+        bigText.setBigContentTitle("Near " + trigger.getInformalLocation().getName() + "?");
+        bigText.setSummaryText("View your \"" + trigger.getName() + "\" note");
+
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
+        mBuilder.setPriority(Notification.PRIORITY_MAX);
+        mBuilder.setStyle(bigText);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("glance_channel",
+                    "Glance",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            mNotificationManager.createNotificationChannel(channel);
+        }
+
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
     @Override
