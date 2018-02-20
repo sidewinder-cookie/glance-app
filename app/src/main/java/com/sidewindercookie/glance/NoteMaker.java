@@ -8,6 +8,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -34,16 +36,13 @@ public class NoteMaker extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("name", "thing");
-                resultIntent.putExtra("details", "more things");
+                resultIntent.putExtra("name", ((EditText) findViewById(R.id.noteNameEdit)).getText().toString());
+                resultIntent.putExtra("details", ((EditText) findViewById(R.id.noteDetailsEdit)).getText().toString());
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        int PLACE_PICKER_REQUEST = 1;
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
     }
 
     public void openLocationPicker(View view) {

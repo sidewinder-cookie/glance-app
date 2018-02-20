@@ -33,6 +33,7 @@
             android:orientation="horizontal">
 
             <EditText
+                android:id="@+id/noteNameEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -50,12 +51,11 @@
             />
 
         <EditText
+            android:id="@+id/noteDetailsEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Details"
-            android:textSize="6pt" />
+            android:inputType="textMultiLine" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

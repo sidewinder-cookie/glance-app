@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             String name = data.getStringExtra("name");
             String details = data.getStringExtra("details");
             notes.add(new Note(name, details));
+            dataAdapter.notifyDataSetChanged();
             Toast.makeText(this, "Note created", Toast.LENGTH_SHORT).show();
         }
     }
