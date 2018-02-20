@@ -49,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
 
         dataAdapter = new NotesViewAdapter(notes);
         recyclerView.setAdapter(dataAdapter);
+
+        startLocationService();
+    }
+
+    public void startLocationService() {
+        Intent intent = new Intent(this, LocationWatcher.class);
+        LocationTrigger[] arr = new LocationTrigger[notes.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = new LocationTrigger(notes.get(i));
+        }
+        intent.putExtra("note-triggers", arr);
+        startService(intent);
     }
 
     public void openNoteMaker() {
@@ -59,9 +71,11 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == WAIT_FOR_RESPONSE && resultCode == RESULT_OK) {
             String name = data.getStringExtra("name");
             String details = data.getStringExtra("details");
-            notes.add(new Note(name, details));
+            InformalLocation location = (InformalLocation) data.getParcelableExtra("informalLocation");
+            notes.add(new Note(name, details, location));
             dataAdapter.notifyDataSetChanged();
             Toast.makeText(this, "Note created", Toast.LENGTH_SHORT).show();
+            startLocationService();
         }
     }
 

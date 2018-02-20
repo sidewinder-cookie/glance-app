@@ -3,6 +3,7 @@
     package="com.sidewindercookie.glance">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +15,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDuszA5EeytLNVPDMDlLzn5LhFmLkG80ak" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -33,6 +35,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sidewindercookie.glance.MainActivity" />
         </activity>
+
+        <service
+            android:name=".LocationWatcher"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>
