@@ -1,6 +1,5 @@
 package com.sidewindercookie.glance;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -24,10 +23,13 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, NoteMaker.class);
-                startActivity(intent);
+                openNoteMaker();
             }
         });
+    }
+
+    public void openNoteMaker() {
+        startActivity(new Intent(this, NoteMaker.class));
     }
 
     @Override
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            openNoteMaker();
             return true;
         }
 
