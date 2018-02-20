@@ -32,7 +32,6 @@ public class NoteMaker extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openLocationPicker();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -41,7 +40,7 @@ public class NoteMaker extends AppCompatActivity {
         PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
     }
 
-    public void openLocationPicker() {
+    public void openLocationPicker(View view) {
         try {
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
