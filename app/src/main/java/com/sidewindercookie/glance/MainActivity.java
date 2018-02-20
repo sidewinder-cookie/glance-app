@@ -3,14 +3,28 @@ package com.sidewindercookie.glance;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 public class MainActivity extends AppCompatActivity {
+
+    int WAIT_FOR_RESPONSE = 5786;
+
+    List<Note> notes = new ArrayList<Note>();
+
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter dataAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +40,28 @@ public class MainActivity extends AppCompatActivity {
                 openNoteMaker();
             }
         });
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.note_recycler_view);
+        recyclerView.setHasFixedSize(false);
+
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        dataAdapter = new NotesViewAdapter(notes);
+        recyclerView.setAdapter(dataAdapter);
     }
 
     public void openNoteMaker() {
-        startActivity(new Intent(this, NoteMaker.class));
+        startActivityForResult(new Intent(this, NoteMaker.class), WAIT_FOR_RESPONSE);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == WAIT_FOR_RESPONSE && resultCode == RESULT_OK) {
+            String name = data.getStringExtra("name");
+            String details = data.getStringExtra("details");
+            notes.add(new Note(name, details));
+            Toast.makeText(this, "Note created", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -48,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            openNoteMaker();
             return true;
         }
 

@@ -1,5 +1,6 @@
 package com.sidewindercookie.glance;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -32,6 +33,11 @@ public class NoteMaker extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("name", "thing");
+                resultIntent.putExtra("details", "more things");
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
