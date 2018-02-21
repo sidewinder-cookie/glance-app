@@ -33,7 +33,7 @@ public class LocationWatcher extends Service {
     private static final String TAG = "GLANCELOCATIONLISTENER";
     private LocationManager locationManager;
     private static final int INTERVAL = 5000; // informalLocation polling interval
-    private static final float PROXIMITY = 50000f; // proximity
+    private static final float PROXIMITY = 100f; // proximity
     NotificationChannel channel;
     int counter = 001;
     HashMap<String, Integer> notificationMap;
