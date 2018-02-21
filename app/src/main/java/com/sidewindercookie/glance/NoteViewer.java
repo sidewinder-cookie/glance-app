@@ -1,8 +1,13 @@
 package com.sidewindercookie.glance;
 
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class NoteViewer extends AppCompatActivity {
@@ -14,9 +19,6 @@ public class NoteViewer extends AppCompatActivity {
 
         String name = getIntent().getStringExtra("name");
         String details = getIntent().getStringExtra("details");
-
-        Log.d("GLANCE", "im alive bitch");
-        Log.d("GLANCE", details);
 
         ((TextView) findViewById(R.id.cardViewerTitle)).setText(name);
         ((TextView) findViewById(R.id.cardViewerDetails)).setText(details);

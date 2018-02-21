@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Glance</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">At a Glance</string>
+    <string name="action_settings">Generate a Route</string>
     <string name="title_activity_note_maker">Create a Note</string>
     <string-array name="google_nearby_types">
         <item>Accounting</item>

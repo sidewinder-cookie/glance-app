@@ -1,12 +1,15 @@
 package com.sidewindercookie.glance;
 
 import android.content.Intent;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +22,7 @@ import java.util.Vector;
 public class MainActivity extends AppCompatActivity {
 
     int WAIT_FOR_RESPONSE = 5786;
+    int RETURN_FROM_THE_THINGY = 76;
 
     List<Note> notes = new ArrayList<Note>();
 
@@ -51,6 +55,23 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(dataAdapter);
 
         startLocationService();
+    }
+
+    private String locationToLatLng(Location location) {
+        return location.getLatitude() + "," + location.getLongitude();
+    }
+
+    public void generateGoogleMapsURL() {
+        String base = "http://maps.google.com/maps?daddr=";
+        for (int i = 0; i < notes.size(); i++) {
+            Location location = notes.get(i).getInformalLocation().getLocation();
+            base += locationToLatLng(location) + "+to:";
+        }
+        base = base.substring(0, base.length() - 4);
+        Log.d("fjgngkdgsdg", base);
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(base));
+        startActivity(i);
     }
 
     public void startLocationService() {
@@ -95,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            generateGoogleMapsURL();
             return true;
         }
 

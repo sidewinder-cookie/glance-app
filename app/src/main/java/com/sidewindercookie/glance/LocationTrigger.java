@@ -1,5 +1,6 @@
 package com.sidewindercookie.glance;
 
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -63,4 +64,8 @@ public class LocationTrigger implements Parcelable {
             return new LocationTrigger[i];
         }
     };
+
+    public String getUrl() {
+        return url;
+    }
 }

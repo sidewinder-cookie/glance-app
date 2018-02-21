@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -18,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /*
@@ -32,10 +34,12 @@ public class LocationWatcher extends Service {
     private LocationManager locationManager;
     private static final int INTERVAL = 5000; // informalLocation polling interval
     private static final float PROXIMITY = 50000f; // proximity
+    NotificationChannel channel;
     int counter = 001;
+    HashMap<String, Integer> notificationMap;
 
     private DiscountOffer[] discountsRaw = new DiscountOffer[] {
-            new DiscountOffer("McDonalds","Enjoy a free Cheeseburger, Mayo Chicken or McFlurry Original® when you order an Extra Value or Wrap Meal at McDonald's.", "https://www.myunidays.com/GB/en-GB/partners/mcdonalds/view/in-store"),
+            // new DiscountOffer("McDonalds","Enjoy a free Cheeseburger, Mayo Chicken or McFlurry Original® when you order an Extra Value or Wrap Meal at McDonald's.", "https://www.myunidays.com/GB/en-GB/partners/mcdonalds/view/in-store"),
             new DiscountOffer("SuperDrug", "10% off", "https://www.myunidays.com/GB/en-GB/partners/superdrug/view/in-store"),
     };
 
@@ -83,6 +87,15 @@ public class LocationWatcher extends Service {
             new LocationListener(LocationManager.NETWORK_PROVIDER)
     };
 
+    public void checkDiscountTriggers(Location location) {
+        ensureNearbyAPI();
+        if (location != null) {
+            for (LocationTrigger trigger : discounts) {
+                nearbyAPI.findNearby((int) PROXIMITY, location, trigger, trigger.getName());
+            }
+        }
+    }
+
     public void checkVagueTriggers(Location location) {
         ensureNearbyAPI();
         if (location != null) {
@@ -90,9 +103,10 @@ public class LocationWatcher extends Service {
                 if (!trigger.getInformalLocation().getName().startsWith("$$")) {
                     continue;
                 }
-                nearbyAPI.findNearby((int) PROXIMITY, location, trigger);
+                nearbyAPI.findNearby((int) PROXIMITY, location, trigger, "");
             }
         }
+        checkDiscountTriggers(location);
     }
 
     public void checkTriggers(Location location) {
@@ -115,18 +129,36 @@ public class LocationWatcher extends Service {
         sendNotification(trigger, trigger.getInformalLocation().getName());
     }
 
+    public int getCodeForNotification(String name) {
+        if (notificationMap.containsKey(name)) {
+            return notificationMap.get(name);
+        } else {
+            notificationMap.put(name, counter);
+            counter++;
+            return counter - 1;
+        }
+    }
+
     public void sendNotification(LocationTrigger trigger, String location) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this.getApplicationContext(), "glance_channel");
         Intent ii = new Intent(getApplicationContext(), NoteViewer.class);
         ii.putExtra("name", trigger.getName());
         ii.putExtra("details", trigger.getDetails());
+        if (trigger.getUrl() != null) {
+            ii = new Intent(Intent.ACTION_VIEW);
+            ii.setData(Uri.parse(trigger.getUrl()));
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, ii, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText("View your \"" + trigger.getName() + "\" note");
+        String details = "View your \"" + trigger.getName() + "\" note";
+        if (trigger.getUrl() != null) {
+            details = trigger.getDetails();
+        }
+        bigText.bigText(details);
         bigText.setBigContentTitle("Near " + location + "?");
-        bigText.setSummaryText("View your \"" + trigger.getName() + "\" note");
+        bigText.setSummaryText(details);
 
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
@@ -137,22 +169,18 @@ public class LocationWatcher extends Service {
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("glance_channel",
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && channel == null) {
+            channel = new NotificationChannel("glance_channel",
                     "Glance",
                     NotificationManager.IMPORTANCE_DEFAULT);
             mNotificationManager.createNotificationChannel(channel);
         }
 
-        mNotificationManager.notify(0, mBuilder.build());
+        mNotificationManager.notify(getCodeForNotification(trigger.getName() + trigger.getDetails()), mBuilder.build());
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        discounts.clear();
-        for (DiscountOffer offer : discountsRaw) {
-            discounts.add(new LocationTrigger(offer.getName(), offer.getOffer(), offer.getUrl()));
-        }
         ensureNearbyAPI();
         return null;
     }
@@ -172,6 +200,13 @@ public class LocationWatcher extends Service {
     private void ensureNearbyAPI() {
         if (nearbyAPI == null) {
             nearbyAPI = new GoogleNearbyAPI(this);
+        }
+        discounts.clear();
+        for (DiscountOffer offer : discountsRaw) {
+            discounts.add(new LocationTrigger(offer.getName(), offer.getOffer(), offer.getUrl()));
+        }
+        if (notificationMap == null) {
+            notificationMap = new HashMap<String, Integer>();
         }
     }
 

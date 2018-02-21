@@ -34,10 +34,13 @@ public class GoogleNearbyAPI {
         return TextUtils.join("_", name.substring(2).toLowerCase().split(" "));
     }
 
-    public void findNearby(final int proximity, final Location location, final LocationTrigger trigger) {
+    public void findNearby(final int proximity, final Location location, final LocationTrigger trigger, String keyword) {
         String type = convertToGoogleName(trigger.getInformalLocation().getName());
         // hi, stay away from our API key or i'll send pitchforks and angry doggos
         String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyDuszA5EeytLNVPDMDlLzn5LhFmLkG80ak&rankby=distance&type="+type+"&location="+location.getLatitude()+","+location.getLongitude();
+        if (keyword != "") {
+            url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyDuszA5EeytLNVPDMDlLzn5LhFmLkG80ak&rankby=distance&keyword="+keyword+"&location="+location.getLatitude()+","+location.getLongitude();
+        }
         Log.d("GLANCE", url);
         JsonObjectRequest request = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -45,7 +48,6 @@ public class GoogleNearbyAPI {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray results = response.getJSONArray("results");
-                            Log.d("HI", response.toString(4));
                             if (results.length() > 0) {
                                 JSONObject result = results.getJSONObject(0);
                                 String name = result.getString("name");
